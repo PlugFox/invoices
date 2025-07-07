@@ -1,0 +1,52 @@
+# ==============================================================================
+# PROJECT METADATA
+# ==============================================================================
+
+name: invoices
+
+description: >
+  A package to generate invoices in PDF format from YAML files.
+  You can use it to create invoices for your customers, clients, or any other purpose.
+
+version: 0.0.1
+
+homepage: https://github.com/plugfox/invoices
+repository: https://github.com/plugfox/invoices
+issue_tracker: https://github.com/plugfox/invoices/issues
+
+topics:
+  - invoices
+  - generation
+  - pdf
+  - cli
+  - yaml
+
+platforms:
+  linux:
+  macos:
+  windows:
+
+# ==============================================================================
+# PROJECT STRUCTURE
+# ==============================================================================
+
+# dart pub global activate --source path .
+# dart run invoices:main
+executables:
+  main: main
+
+# ==============================================================================
+# DEPENDENCIES
+# ==============================================================================
+
+environment:
+  sdk: ">=3.7.0 <4.0.0"
+
+dependencies:
+  #crypto: ^3.0.6
+  path: ^1.9.1
+  args: ^2.7.0
+  pdf: ^3.11.3
+
+dev_dependencies:
+  lints: ">=5.0.0 <7.0.0"
