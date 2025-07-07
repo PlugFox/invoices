@@ -14,7 +14,22 @@
       },
       "args": [
         "--input=config/config.yaml",
-        "--locale=en_US",
+        "--locale=en_US"
+      ],
+      "console": "debugConsole",
+      "runTestsOnDevice": false,
+      "toolArgs": [],
+    },
+    {
+      "name": "Print usage information",
+      "request": "launch",
+      "type": "dart",
+      "program": "bin/main.dart",
+      "env": {
+        "ENVIRONMENT": "local"
+      },
+      "args": [
+        "--help"
       ],
       "console": "debugConsole",
       "runTestsOnDevice": false,

@@ -5,6 +5,7 @@ import 'package:intl/locale.dart';
 import 'package:invoices/src/invoice.dart';
 import 'package:invoices/src/templates/helpers.dart';
 import 'package:invoices/src/templates/markdown_widget.dart';
+import 'package:meta/meta.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -12,6 +13,7 @@ import 'package:pdf/widgets.dart' as pw;
 /// The [context] can contain additional information such as title, subject,
 /// producer, author, creator, keywords, theme, page format, color, and logo.
 /// Returns a [Uint8List] containing the PDF data.
+@internal
 Future<Uint8List> pdfBuilderSimple(Invoice invoice, Map<String, Object?> context) async {
   T extract<T>(String key, T Function() fallback) {
     final path = key.split('.');
@@ -44,7 +46,7 @@ Future<Uint8List> pdfBuilderSimple(Invoice invoice, Map<String, Object?> context
   final dateFormat = DateFormat('d MMMM yyyy', locale.toString());
 
   // Get default text style
-  final defaultStyle = await Helpers.getTextStyle(context['font'] ?? context['style']);
+  final defaultStyle = await Helpers.getTextStyle(context['font'] ?? context['fonts'] ?? context['style']);
 
   // Fonts sizes:
   const h0 = 22.0, h1 = 20.0, h2 = 18.0, h3 = 16.0, h4 = 14.0, h5 = 12.0, body = 12.0;
@@ -244,6 +246,7 @@ class _InvoiceTemplate$Simple$PageHeader extends pw.StatelessWidget {
               flex: 1,
               child: pw.Column(
                 mainAxisSize: pw.MainAxisSize.max,
+                verticalDirection: pw.VerticalDirection.down,
                 mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: pw.CrossAxisAlignment.end,
                 children: <pw.Widget>[
@@ -254,7 +257,7 @@ class _InvoiceTemplate$Simple$PageHeader extends pw.StatelessWidget {
                     overflow: pw.TextOverflow.clip,
                     style: pw.TextStyle(
                       color: PdfColors.white,
-                      fontSize: 42,
+                      fontSize: 32,
                       fontWeight: pw.FontWeight.bold,
                       height: 1,
                       letterSpacing: -.5,
@@ -262,7 +265,9 @@ class _InvoiceTemplate$Simple$PageHeader extends pw.StatelessWidget {
                   ),
                   pw.Column(
                     mainAxisSize: pw.MainAxisSize.min,
+                    mainAxisAlignment: pw.MainAxisAlignment.start,
                     crossAxisAlignment: pw.CrossAxisAlignment.end,
+                    verticalDirection: pw.VerticalDirection.down,
                     children: <pw.Widget>[
                       pw.Text(
                         invoice.number,
@@ -446,7 +451,7 @@ class _InvoiceTemplate$Simple$InvoicesTotal extends pw.StatelessWidget {
                 maxLines: 1,
                 tightBounds: true,
                 text: pw.TextSpan(
-                  style: pw.TextStyle(fontSize: 16, height: 1, color: PdfColors.white, fontWeight: pw.FontWeight.bold),
+                  style: pw.TextStyle(fontSize: 14, height: 1, color: PdfColors.white, fontWeight: pw.FontWeight.bold),
                   children: <pw.InlineSpan>[
                     const pw.TextSpan(text: 'Total:'),
                     const pw.TextSpan(text: ' '),

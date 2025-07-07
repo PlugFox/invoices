@@ -3,8 +3,7 @@ import 'dart:io' as io;
 
 import 'package:args/args.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:invoices/src/invoice.dart';
-import 'package:invoices/src/templates.dart';
+import 'package:invoices/invoices.dart';
 import 'package:yaml/yaml.dart' as yaml;
 
 final $log = io.stdout.writeln; // Log to stdout
@@ -20,7 +19,7 @@ void main([List<String>? $arguments]) => runZonedGuarded<void>(
     final args = parser.parse($arguments ?? []);
     if (args['help'] == true) {
       io.stdout
-        ..writeln(_help)
+        ..writeln(_help.trim())
         ..writeln()
         ..writeln(parser.usage);
       io.exit(0);
@@ -109,8 +108,16 @@ void main([List<String>? $arguments]) => runZonedGuarded<void>(
       await initializeDateFormatting(locale);
     }
 
+    Fonts font;
+    {
+      font = switch (args.option('template')) {
+        String template when template.isNotEmpty => Fonts.fromName(template),
+        _ => Fonts.openSans,
+      };
+    }
+
     final template = Templates.fromName(args.option('template'));
-    final bytes = await template.build(invoice, <String, Object?>{'locale': locale});
+    final bytes = await template.build(invoice, <String, Object?>{'locale': locale, 'font': font});
     io.File(output).writeAsBytesSync(bytes);
     $log('Invoice generated successfully: $output');
 
@@ -157,8 +164,9 @@ ArgParser buildArgumentsParser() =>
         defaultsTo: 'config.yaml',
         valueHelp: 'path/to/input.yaml',
         help:
-            'Input YAML file containing invoice data. '
-            'This file should contain all the necessary information to generate the invoice, '
+            'Input YAML file containing invoice data.\n'
+            'This file should contain all the necessary\n'
+            'information to generate the invoice,\n'
             'such as customer details, items, and totals.',
       )
       ..addOption(
@@ -169,8 +177,9 @@ ArgParser buildArgumentsParser() =>
         defaultsTo: 'output.pdf',
         valueHelp: 'path/to/output.pdf',
         help:
-            'Output PDF file where the generated invoice will be saved. '
-            'This file will contain the formatted invoice based on the input YAML data and the template used.',
+            'Output PDF file where the generated invoice will be saved.\n'
+            'This file will contain the formatted invoice based\n'
+            'on the input YAML data and the template used.',
       )
       ..addOption(
         'template',
@@ -178,8 +187,21 @@ ArgParser buildArgumentsParser() =>
         aliases: const <String>['layout', 'style', 'format', 'template-file'],
         mandatory: false,
         defaultsTo: Templates.values.first.name,
-        valueHelp: Templates.values.map((e) => e.name).join('|'),
+        allowed: Templates.values.map((e) => e.name).toList(growable: false),
+        allowedHelp: {for (final template in Templates.values) template.name: template.description},
         help: 'Template to use for generating the invoice.',
+      )
+      ..addOption(
+        'font',
+        abbr: 'f',
+        aliases: const <String>['fonts', 'typeface', 'ttf', 'font-file'],
+        mandatory: false,
+        defaultsTo: Fonts.openSans.name,
+        allowed: Fonts.values.map((e) => e.name).toList(growable: false),
+        allowedHelp: {for (final font in Fonts.values) font.name: font.description},
+        help:
+            'Font to use for the invoice text.\n'
+            'This can be a built-in PDF font or a custom TTF font file',
       )
       ..addOption(
         'locale',
@@ -196,8 +218,10 @@ const String _help = '''
 Invoices Generator
 
 A simple command line tool to generate pdf invoices from the yaml file.
-This tool reads a YAML file containing invoice data and generates a PDF invoice based on the provided template.
-It is designed to be used in a Dart environment and can be run from the command line.
+This tool reads a YAML file containing invoice data and
+generates a PDF invoice based on the provided template.
+It is designed to be used in a Dart environment
+and can be run from the command line.
 
 Usage: dart run bin/main.dart [options]
 ''';
