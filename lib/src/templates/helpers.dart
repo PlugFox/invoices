@@ -1,3 +1,6 @@
+import 'dart:io' as io;
+import 'dart:typed_data';
+
 import 'package:meta/meta.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -58,44 +61,64 @@ abstract final class Helpers {
   };
 
   /// Cache for theme data to avoid loading the same font multiple times
-  static final Map<String, pw.ThemeData> _themeDataCache = <String, pw.ThemeData>{};
+  static final Map<String, pw.TextStyle> _textStyleCache = <String, pw.TextStyle>{};
+
+  // Load a PDF font from the given path
+  static pw.Font loadPDFFont(String path) {
+    final data = io.File(path).readAsBytesSync();
+    return pw.Font.ttf(ByteData.view(data.buffer));
+  }
+
+  /// Load the icons font for emojis
+  static final pw.Font iconsFont = loadPDFFont('fonts/NotoEmoji.ttf');
 
   /// Get the theme data from the font
-  static Future<pw.ThemeData> getThemeDataFromFont(Object? font) async {
-    return switch (font) {
-      'times' => _themeDataCache.putIfAbsent(
-        'times',
-        () => pw.ThemeData.withFont(
-          base: pw.Font.times(),
-          bold: pw.Font.timesBold(),
-          italic: pw.Font.timesItalic(),
-          boldItalic: pw.Font.timesBoldItalic(),
-          icons: pw.Font.times(),
-          fontFallback: <pw.Font>[pw.Font.times()],
-        ),
-      ),
-      'helvetica' => _themeDataCache.putIfAbsent(
-        'helvetica',
-        () => pw.ThemeData.withFont(
-          base: pw.Font.helvetica(),
-          bold: pw.Font.helveticaBold(),
-          italic: pw.Font.helveticaOblique(),
-          boldItalic: pw.Font.helveticaBoldOblique(),
-          icons: pw.Font.helvetica(),
-          fontFallback: <pw.Font>[pw.Font.helvetica()],
-        ),
-      ),
-      'courier' || _ => _themeDataCache.putIfAbsent(
-        'courier',
-        () => pw.ThemeData.withFont(
-          base: pw.Font.courier(),
-          bold: pw.Font.courierBold(),
-          italic: pw.Font.courierOblique(),
-          boldItalic: pw.Font.courierBoldOblique(),
-          icons: pw.Font.courier(),
-          fontFallback: <pw.Font>[pw.Font.courier()],
-        ),
-      ),
+  static Future<pw.TextStyle> getTextStyle(Object? font) async {
+    return switch (font.toString().trim().toLowerCase()) {
+      'times' => _textStyleCache.putIfAbsent('times', () {
+        final regular = pw.Font.times();
+        return pw.TextStyle.defaultStyle().copyWith(
+          font: regular,
+          fontNormal: regular,
+          fontBold: pw.Font.timesBold(),
+          fontItalic: pw.Font.timesItalic(),
+          fontBoldItalic: pw.Font.timesBoldItalic(),
+          fontFallback: <pw.Font>[iconsFont],
+        );
+      }),
+      'helvetica' => _textStyleCache.putIfAbsent('helvetica', () {
+        final regular = pw.Font.helvetica();
+        return pw.TextStyle.defaultStyle().copyWith(
+          font: regular,
+          fontNormal: regular,
+          fontBold: pw.Font.helveticaBold(),
+          fontItalic: pw.Font.helveticaOblique(),
+          fontBoldItalic: pw.Font.helveticaBoldOblique(),
+          fontFallback: <pw.Font>[iconsFont],
+        );
+      }),
+      'courier' => _textStyleCache.putIfAbsent('courier', () {
+        final regular = pw.Font.courier();
+        return pw.TextStyle.defaultStyle().copyWith(
+          font: regular,
+          fontNormal: regular,
+          fontBold: pw.Font.courierBold(),
+          fontItalic: pw.Font.courierOblique(),
+          fontBoldItalic: pw.Font.courierBoldOblique(),
+          fontFallback: <pw.Font>[iconsFont],
+        );
+      }),
+      'opensans' || _ => _textStyleCache.putIfAbsent('opensans', () {
+        final regular = loadPDFFont('fonts/OpenSans-Regular.ttf');
+        return pw.TextStyle.defaultStyle().copyWith(
+          font: regular,
+          fontNormal: regular,
+          fontBold: loadPDFFont('fonts/OpenSans-Bold.ttf'),
+          fontItalic: loadPDFFont('fonts/OpenSans-Italic.ttf'),
+          fontBoldItalic: loadPDFFont('fonts/OpenSans-BoldItalic.ttf'),
+          fontFallback: <pw.Font>[iconsFont],
+        );
+      }),
     };
   }
 }

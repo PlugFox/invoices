@@ -112,6 +112,7 @@ void main([List<String>? $arguments]) => runZonedGuarded<void>(
     final template = Templates.fromName(args.option('template'));
     final bytes = await template.build(invoice, <String, Object?>{'locale': locale});
     io.File(output).writeAsBytesSync(bytes);
+    $log('Invoice generated successfully: $output');
 
     io.exit(0);
   },

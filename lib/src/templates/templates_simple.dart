@@ -1,8 +1,10 @@
 import 'dart:typed_data';
 
 import 'package:intl/intl.dart';
+import 'package:intl/locale.dart';
 import 'package:invoices/src/invoice.dart';
 import 'package:invoices/src/templates/helpers.dart';
+import 'package:invoices/src/templates/markdown_widget.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -33,12 +35,35 @@ Future<Uint8List> pdfBuilderSimple(Invoice invoice, Map<String, Object?> context
 
   // Locale for formatting
   final locale = switch (context['locale'] ?? context['language'] ?? context['lang']) {
-    String locale when locale.isNotEmpty => locale,
-    _ => 'en_US',
+    String locale when locale.isNotEmpty =>
+      Locale.tryParse(locale) ?? Locale.fromSubtags(languageCode: 'en', countryCode: 'US'),
+    _ => Locale.fromSubtags(languageCode: 'en', countryCode: 'US'),
   };
 
   // Default date formatter
-  final dateFormat = DateFormat('d MMMM yyyy', locale);
+  final dateFormat = DateFormat('d MMMM yyyy', locale.toString());
+
+  // Get default text style
+  final defaultStyle = await Helpers.getTextStyle(context['font'] ?? context['style']);
+
+  // Fonts sizes:
+  const h0 = 22.0, h1 = 20.0, h2 = 18.0, h3 = 16.0, h4 = 14.0, h5 = 12.0, body = 12.0;
+  final theme = pw.ThemeData(
+    softWrap: true,
+    overflow: pw.TextOverflow.visible,
+    defaultTextStyle: defaultStyle.copyWith(fontSize: body),
+    paragraphStyle: defaultStyle.copyWith(lineSpacing: 5),
+    bulletStyle: defaultStyle.copyWith(lineSpacing: 5),
+    header0: defaultStyle.copyWith(fontSize: h0, fontWeight: pw.FontWeight.bold),
+    header1: defaultStyle.copyWith(fontSize: h1, fontWeight: pw.FontWeight.bold),
+    header2: defaultStyle.copyWith(fontSize: h2, fontWeight: pw.FontWeight.bold),
+    header3: defaultStyle.copyWith(fontSize: h3, fontWeight: pw.FontWeight.bold),
+    header4: defaultStyle.copyWith(fontSize: h4, fontWeight: pw.FontWeight.bold),
+    header5: defaultStyle.copyWith(fontSize: h5, fontWeight: pw.FontWeight.bold),
+    tableHeader: defaultStyle.copyWith(fontSize: body, fontWeight: pw.FontWeight.normal),
+    tableCell: defaultStyle.copyWith(fontSize: body),
+    iconTheme: pw.IconThemeData.fallback(Helpers.iconsFont),
+  );
 
   // Create the PDF document
   final doc = pw.Document(
@@ -51,25 +76,19 @@ Future<Uint8List> pdfBuilderSimple(Invoice invoice, Map<String, Object?> context
     author: extract('author', () => invoice.organization.name),
     creator: extract('author', () => invoice.organization.name),
     keywords: extract('keywords', () => 'invoice, ${invoice.organization.name}, ${invoice.number}'),
-    theme: await Helpers.getThemeDataFromFont(context['font'] ?? context['theme'] ?? 'courier'),
-    /* compress: ,
-      deflate: ,
-      metadata: ,
-      pageMode: ,
-      verbose: , */
+    theme: theme,
+    version: PdfVersion.pdf_1_5,
+    compress: true,
+    pageMode: PdfPageMode.none,
+    //metadata: ,
   );
 
   // Create theme
   final pageTheme = pw.PageTheme(
     pageFormat: Helpers.getPageFormat(context['format'] ?? context['page'] ?? 'a4'),
+    theme: doc.theme,
     orientation: pw.PageOrientation.portrait,
     margin: pw.EdgeInsets.zero,
-    /* margin: const pw.EdgeInsets.fromLTRB(
-        PdfPageFormat.inch * 0.5,
-        PdfPageFormat.inch * 0.25,
-        PdfPageFormat.inch * 0.5,
-        PdfPageFormat.inch * 0.25,
-      ), */
   );
 
   // Load the logo
@@ -91,6 +110,7 @@ Future<Uint8List> pdfBuilderSimple(Invoice invoice, Map<String, Object?> context
 
   doc.addPage(
     pw.MultiPage(
+      maxPages: 500,
       pageTheme: pageTheme,
       // --- Page Header --- //
       header: (context) => pw.SizedBox(height: PdfPageFormat.inch * 0.5),
@@ -131,11 +151,22 @@ Future<Uint8List> pdfBuilderSimple(Invoice invoice, Map<String, Object?> context
 
             pw.SizedBox(height: PdfPageFormat.inch * 0.25),
 
-            // --- Invoice description --- //
-            if (invoice.description case String description when description.isNotEmpty)
+            // --- Counterparty --- //
+            if (invoice.counterparty case Organization counterparty)
               pw.Padding(
                 padding: const pw.EdgeInsets.symmetric(horizontal: PdfPageFormat.inch * 0.5),
-                child: _InvoiceTemplate$Simple$InvoiceDescription(text: description),
+                child: _InvoiceTemplate$Simple$InvoiceOrganization(organization: counterparty),
+              ),
+
+            pw.SizedBox(height: PdfPageFormat.inch * 0.25),
+
+            // --- Invoice description --- //
+            if (invoice.description case String description when description.isNotEmpty)
+              ...MarkdownWidget.build(locale: locale, text: description, theme: theme).map(
+                (widget) => pw.Padding(
+                  padding: const pw.EdgeInsets.symmetric(horizontal: PdfPageFormat.inch * 0.5),
+                  child: widget,
+                ),
               ),
 
             pw.SizedBox(height: PdfPageFormat.inch * 0.25),
@@ -274,7 +305,7 @@ class _InvoiceTemplate$Simple$InvoiceOrganization extends pw.StatelessWidget {
   pw.Widget build(pw.Context context) => pw.Column(
     crossAxisAlignment: pw.CrossAxisAlignment.start,
     children: <pw.Widget>[
-      pw.Text(organization.name, style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, height: 1)),
+      pw.Text(organization.name, style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold, height: 1)),
       if (organization.address case String address when address.isNotEmpty)
         pw.Padding(
           padding: const pw.EdgeInsets.only(top: 4),
@@ -302,19 +333,6 @@ class _InvoiceTemplate$Simple$InvoiceOrganization extends pw.StatelessWidget {
           ),
         ),
     ],
-  );
-}
-
-class _InvoiceTemplate$Simple$InvoiceDescription extends pw.StatelessWidget {
-  _InvoiceTemplate$Simple$InvoiceDescription({required this.text});
-
-  final String text;
-
-  @override
-  pw.Widget build(pw.Context context) => pw.Text(
-    text,
-    textAlign: pw.TextAlign.justify,
-    style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.normal),
   );
 }
 
@@ -370,7 +388,7 @@ class _InvoiceTemplate$Simple$InvoicesTable extends pw.StatelessWidget {
         for (final (number, service) in invoice.services.indexed)
           <pw.Widget>[
             pw.Text(
-              number.toString(),
+              '${number + 1}.',
               maxLines: 1,
               textAlign: pw.TextAlign.center,
               style: const pw.TextStyle(fontSize: 12, height: 1),
@@ -407,29 +425,36 @@ class _InvoiceTemplate$Simple$InvoicesTotal extends pw.StatelessWidget {
   @override
   pw.Widget build(pw.Context context) => pw.Align(
     alignment: pw.Alignment.centerRight,
-    child: pw.SizedBox(
-      height: 40,
-      child: pw.DecoratedBox(
-        decoration: const pw.BoxDecoration(
-          color: PdfColors.blueGrey800,
-          shape: pw.BoxShape.rectangle,
-          borderRadius: pw.BorderRadius.horizontal(left: pw.Radius.circular(20)),
-        ),
+    child: pw.DecoratedBox(
+      position: pw.DecorationPosition.background,
+      decoration: const pw.BoxDecoration(
+        color: PdfColors.blueGrey800,
+        shape: pw.BoxShape.rectangle,
+        borderRadius: pw.BorderRadius.horizontal(left: pw.Radius.circular(16)),
+      ),
+      child: pw.SizedBox(
+        height: 40,
         child: pw.Padding(
-          padding: const pw.EdgeInsets.fromLTRB(16, 8, PdfPageFormat.inch * 0.5, 8),
+          padding: const pw.EdgeInsets.fromLTRB(16, 0, PdfPageFormat.inch * 0.5, 0),
           child: pw.Row(
             mainAxisSize: pw.MainAxisSize.min,
             mainAxisAlignment: pw.MainAxisAlignment.end,
             crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: <pw.Widget>[
-              pw.Text(
-                'Total:',
-                style: pw.TextStyle(color: PdfColors.white, fontSize: 14, fontWeight: pw.FontWeight.bold),
-              ),
-              pw.SizedBox(width: 8),
-              pw.Text(
-                invoice.total.toStringAsFixed(2),
-                style: pw.TextStyle(color: PdfColors.white, fontSize: 14, fontWeight: pw.FontWeight.bold),
+              pw.RichText(
+                textAlign: pw.TextAlign.right,
+                maxLines: 1,
+                tightBounds: true,
+                text: pw.TextSpan(
+                  style: pw.TextStyle(fontSize: 16, height: 1, color: PdfColors.white, fontWeight: pw.FontWeight.bold),
+                  children: <pw.InlineSpan>[
+                    const pw.TextSpan(text: 'Total:'),
+                    const pw.TextSpan(text: ' '),
+                    pw.TextSpan(text: invoice.total.toStringAsFixed(2)),
+                    const pw.TextSpan(text: ' '),
+                    pw.TextSpan(text: invoice.currency),
+                  ],
+                ),
               ),
             ],
           ),

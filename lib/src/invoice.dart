@@ -209,12 +209,12 @@ class Invoice implements Comparable<Invoice> {
         String text => text,
         _ => 'EUR', // Default currency
       },
-      organization: switch (map['organization'] ?? map['issuer'] ?? map['from']) {
+      organization: switch (map['organization'] ?? map['issuer'] ?? map['company'] ?? map['from']) {
         Map<String, Object?> org => Organization.fromMap(org),
         Organization org => org,
         _ => Organization.fromMap(const {}),
       },
-      counterparty: switch (map['counterparty'] ?? map['recipient'] ?? map['to']) {
+      counterparty: switch (map['counterparty'] ?? map['recipient'] ?? map['customer'] ?? map['to']) {
         Map<String, Object?> org => Organization.fromMap(org),
         Organization org => org,
         _ => Organization.fromMap(const {}),

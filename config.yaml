@@ -12,6 +12,29 @@ counterparty:
   name: "Client Name"
   address: "456 Client St, City, Country"
   taxId: "987654321"
+  description: |
+    Sample Client Company
+    789 Client Ave, City, Country
+
+description: |
+  Frontend software development services according to _INDEPENDENT CONTRACTOR AGREEMENT
+  dated XXth day of Month, 2023_
+
+  #### Bank details for USD transfer
+  **Beneficiary’s Bank:** Bank name, City, Country
+  **Beneficiary SWIFT:** BANKSWIFT
+  **Ben’s IBAN:** US12BANK12345678901234
+  **Name of Beneficiary:** P/E Name Surname
+
+  ##### Intermediary Bank
+  Sample Bank
+  Somewhere, Country
+  SWIFT
+
+  ##### Intermediary Bank
+  Sample Bank
+  Somewhere, Country
+  SWIFT
 
 services:
   - name: "Service 1"

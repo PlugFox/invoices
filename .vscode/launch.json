@@ -13,6 +13,7 @@
         "ENVIRONMENT": "local"
       },
       "args": [
+        "--input=config/config.yaml",
         "--locale=en_US",
       ],
       "console": "debugConsole",
