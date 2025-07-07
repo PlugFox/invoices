@@ -14,6 +14,8 @@ homepage: https://github.com/plugfox/invoices
 repository: https://github.com/plugfox/invoices
 issue_tracker: https://github.com/plugfox/invoices/issues
 
+publish_to: "none" # Do not publish to pub.dev
+
 topics:
   - invoices
   - generation
