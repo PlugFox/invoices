@@ -1,2 +1,4 @@
 .vscode/
 credentials.json
+*.pdf
+test/*.json

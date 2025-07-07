@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
@@ -134,11 +136,55 @@ class Invoice implements Comparable<Invoice> {
     required this.description,
   });
 
-  /// Generate invoice number
+  static const String _numberDictionary = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+  /// Generate invoice number based on the issued date.
+  /// The format is 'INV-DATE-TIME', where DATE is encoded from the year, month, and day,
+  /// and TIME is encoded from the hour and minute.
   static String generateNumber(DateTime issuedAt) {
     final dt = issuedAt.toUtc();
     // Object().hashCode.toRadixString(36)
-    return 'INV-${((dt.year << 9) | (dt.month << 5) | (dt.day)).toRadixString(36)}-${(dt.hour << 6 | dt.minute).toRadixString(36)}';
+    final dic = _numberDictionary.codeUnits;
+    String num2string(int num) {
+      if (num < 0) return '-${num2string(-num)}';
+      if (num == 0) return '0';
+      final sb = StringBuffer();
+      while (num > 0) {
+        sb.write(String.fromCharCode(dic[num % dic.length]));
+        num ~/= dic.length;
+      }
+      return sb.toString().split('').reversed.join();
+    }
+
+    return 'INV-${num2string((dt.year << 9) | (dt.month << 5) | (dt.day))}-${num2string(dt.hour << 6 | dt.minute)}';
+  }
+
+  /// Convert a number string to a [DateTime].
+  /// The number string should be in the format 'INV-DATE-TIME',
+  /// where DATE is encoded from the year, month, and day,
+  /// and TIME is encoded from the hour and minute.
+  static DateTime? numberToDateTime(String number) {
+    final parts = number.split('-');
+    if (parts.length != 3) return null;
+    final [_, $date, $time] = parts;
+    final dic = Uint8List(255);
+    const length = _numberDictionary.length;
+    for (final (i, c) in _numberDictionary.codeUnits.indexed) dic[c] = i;
+    int string2num(String str) {
+      int num = 0;
+      for (var i = 0; i < str.length; i++) num = num * length + dic[str.codeUnitAt(i)];
+      return num;
+    }
+
+    final date = string2num($date);
+    final time = string2num($time);
+    return DateTime.utc(
+      (date >> 9) & 0x1FFF, // Year
+      (date >> 5) & 0xF, // Month
+      date & 0x1F, // Day
+      (time >> 6) & 0x1F, // Hour
+      time & 0x3F, // Minute
+    );
   }
 
   /// Factory constructor to create an [Invoice] from a map.
@@ -212,6 +258,13 @@ class Invoice implements Comparable<Invoice> {
 
   /// Description
   final String? description;
+
+  /// Total amount of the invoice, calculated as the sum of all service amounts.
+  double get total {
+    var total = 0;
+    for (final service in services) total += (service.amount * 100).round(); // Round to 2 decimal places
+    return total / 100; // Convert back to floating point
+  }
 
   @override
   int compareTo(covariant Invoice other) => other.issuedAt.compareTo(issuedAt);

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io' as io;
 
 import 'package:args/args.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:invoices/src/invoice.dart';
 import 'package:invoices/src/templates.dart';
 import 'package:yaml/yaml.dart' as yaml;
@@ -98,8 +99,19 @@ void main([List<String>? $arguments]) => runZonedGuarded<void>(
       }
     }
 
+    // Initialize locale and date formatting
+    String locale;
+    {
+      locale = switch (args.option('locale') ?? io.Platform.localeName) {
+        String locale when locale.isNotEmpty => locale,
+        _ => io.Platform.localeName,
+      }.replaceAll('-', '_');
+      await initializeDateFormatting(locale);
+    }
+
     final template = Templates.fromName(args.option('template'));
-    final _ = await template.build(invoice, {});
+    final bytes = await template.build(invoice, <String, Object?>{'locale': locale});
+    io.File(output).writeAsBytesSync(bytes);
 
     io.exit(0);
   },
@@ -167,6 +179,15 @@ ArgParser buildArgumentsParser() =>
         defaultsTo: Templates.values.first.name,
         valueHelp: Templates.values.map((e) => e.name).join('|'),
         help: 'Template to use for generating the invoice.',
+      )
+      ..addOption(
+        'locale',
+        abbr: 'l',
+        aliases: const <String>['language', 'lang', 'i18n', 'internationalization', 'localization'],
+        mandatory: false,
+        defaultsTo: io.Platform.localeName,
+        valueHelp: 'en_US',
+        help: 'Locale to use for formatting the invoice.',
       );
 
 /// Help message for the command line arguments

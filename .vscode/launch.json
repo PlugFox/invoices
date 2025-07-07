@@ -12,10 +12,12 @@
       "env": {
         "ENVIRONMENT": "local"
       },
+      "args": [
+        "--locale=en_US",
+      ],
       "console": "debugConsole",
       "runTestsOnDevice": false,
       "toolArgs": [],
-      "args": []
     },
     // https://pub.dev/packages/test
     {

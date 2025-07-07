@@ -1,0 +1,17 @@
+{"protocolVersion":"0.1.1","runnerVersion":"1.26.2","pid":36096,"type":"start","time":0}
+{"suite":{"id":0,"platform":"vm","path":"D:/git/invoices/test/unit_test.dart"},"type":"suite","time":0}
+{"test":{"id":1,"name":"loading D:/git/invoices/test/unit_test.dart","suiteID":0,"groupIDs":[],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":0}
+{"count":1,"time":5,"type":"allSuites"}
+{"suiteID":0,"observatory":"http://127.0.0.1:53741/CEgrh-OZQhE=/#/inspect?isolateId=isolates%2F3772900190710547&objectId=libraries%2F%4022178605","remoteDebugger":null,"type":"debug","time":495}
+{"testID":1,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":496}
+{"group":{"id":2,"suiteID":0,"parentID":null,"name":"","metadata":{"skip":false,"skipReason":null},"testCount":4,"line":null,"column":null,"url":null},"type":"group","time":498}
+{"group":{"id":3,"suiteID":0,"parentID":2,"name":"Unit Tests","metadata":{"skip":false,"skipReason":null},"testCount":4,"line":4,"column":16,"url":"file:///D:/git/invoices/test/unit_test.dart"},"type":"group","time":498}
+{"test":{"id":4,"name":"Unit Tests Invoice number generation","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":7,"column":3,"url":"file:///D:/git/invoices/test/unit_test.dart"},"type":"testStart","time":498}
+{"testID":4,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":508}
+{"test":{"id":5,"name":"Unit Tests Invoice number to DateTime conversion","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":12,"column":3,"url":"file:///D:/git/invoices/test/unit_test.dart"},"type":"testStart","time":509}
+{"testID":5,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":511}
+{"test":{"id":6,"name":"Unit Tests Encode and decode invoice number","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":17,"column":3,"url":"file:///D:/git/invoices/test/unit_test.dart"},"type":"testStart","time":511}
+{"testID":6,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":1068}
+{"test":{"id":7,"name":"Unit Tests Invoice from empty map","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":27,"column":3,"url":"file:///D:/git/invoices/test/unit_test.dart"},"type":"testStart","time":1069}
+{"testID":7,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":1071}
+{"success":true,"type":"done","time":2178}
