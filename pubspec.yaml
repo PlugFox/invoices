@@ -5,7 +5,7 @@
 name: invoices
 
 description: >
-  A package to generate invoices in PDF format from YAML files.
+  A package and tool to generate invoices in PDF format from YAML files.
   You can use it to create invoices for your customers, clients, or any other purpose.
 
 version: 0.0.1
