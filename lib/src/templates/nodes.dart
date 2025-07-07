@@ -89,19 +89,20 @@ extension type const MD$Style(int value) implements int {
   ///
   /// For example:
   /// print(span.style.styles.join('|'));
-  Set<String> get styles => value == 0
-      ? const <String>{}
-      : <String>{
-          if (contains(MD$Style.italic)) 'italic',
-          if (contains(MD$Style.bold)) 'bold',
-          if (contains(MD$Style.underline)) 'underline',
-          if (contains(MD$Style.strikethrough)) 'strikethrough',
-          if (contains(MD$Style.monospace)) 'monospace',
-          if (contains(MD$Style.link)) 'link',
-          if (contains(MD$Style.image)) 'image',
-          if (contains(MD$Style.highlight)) 'highlight',
-          if (contains(MD$Style.spoiler)) 'spoiler',
-        };
+  Set<String> get styles =>
+      value == 0
+          ? const <String>{}
+          : <String>{
+            if (contains(MD$Style.italic)) 'italic',
+            if (contains(MD$Style.bold)) 'bold',
+            if (contains(MD$Style.underline)) 'underline',
+            if (contains(MD$Style.strikethrough)) 'strikethrough',
+            if (contains(MD$Style.monospace)) 'monospace',
+            if (contains(MD$Style.link)) 'link',
+            if (contains(MD$Style.image)) 'image',
+            if (contains(MD$Style.highlight)) 'highlight',
+            if (contains(MD$Style.spoiler)) 'spoiler',
+          };
 
   /// Toggle a style flag in the current style.
   MD$Style operator ^(MD$Style other) => MD$Style(value ^ other.value);
@@ -116,13 +117,7 @@ final class MD$Span {
   /// The [text] is the content of the inline text,
   /// and [style] is the text style applied to it.
   /// {@macro markdown_span}
-  const MD$Span({
-    required this.start,
-    required this.end,
-    required this.text,
-    this.style = MD$Style.none,
-    this.extra,
-  });
+  const MD$Span({required this.start, required this.end, required this.text, this.style = MD$Style.none, this.extra});
 
   /// The start index of the inline text in the parent block.
   final int start;
@@ -188,17 +183,16 @@ sealed class MD$Block {
     T Function(MD$Table t)? table,
     T Function(MD$Spacer s)? spacer,
     required T Function(MD$Block b) orElse,
-  }) =>
-      map(
-        paragraph: paragraph ?? orElse,
-        heading: heading ?? orElse,
-        quote: quote ?? orElse,
-        code: code ?? orElse,
-        list: list ?? orElse,
-        divider: divider ?? orElse,
-        table: table ?? orElse,
-        spacer: spacer ?? orElse,
-      );
+  }) => map(
+    paragraph: paragraph ?? orElse,
+    heading: heading ?? orElse,
+    quote: quote ?? orElse,
+    code: code ?? orElse,
+    list: list ?? orElse,
+    divider: divider ?? orElse,
+    table: table ?? orElse,
+    spacer: spacer ?? orElse,
+  );
 
   @override
   String toString() => text;
@@ -211,10 +205,7 @@ sealed class MD$Block {
 final class MD$Paragraph extends MD$Block {
   /// Creates a new instance of [MD$Paragraph].
   /// {@macro markdown_block}
-  const MD$Paragraph({
-    required this.text,
-    required this.spans,
-  });
+  const MD$Paragraph({required this.text, required this.spans});
 
   @override
   String get type => 'paragraph';
@@ -236,8 +227,7 @@ final class MD$Paragraph extends MD$Block {
     required T Function(MD$Divider d) divider,
     required T Function(MD$Table t) table,
     required T Function(MD$Spacer s) spacer,
-  }) =>
-      paragraph(this);
+  }) => paragraph(this);
 }
 
 /// A block representing a heading in Markdown.
@@ -247,11 +237,7 @@ final class MD$Paragraph extends MD$Block {
 final class MD$Heading extends MD$Block {
   /// Creates a new instance of [MD$Heading].
   /// {@macro markdown_block}
-  const MD$Heading({
-    required this.text,
-    required this.level,
-    required this.spans,
-  });
+  const MD$Heading({required this.text, required this.level, required this.spans});
 
   @override
   String get type => 'heading';
@@ -275,8 +261,7 @@ final class MD$Heading extends MD$Block {
     required T Function(MD$Divider d) divider,
     required T Function(MD$Table t) table,
     required T Function(MD$Spacer s) spacer,
-  }) =>
-      heading(this);
+  }) => heading(this);
 }
 
 /// A block representing a quote in Markdown.
@@ -286,11 +271,7 @@ final class MD$Heading extends MD$Block {
 final class MD$Quote extends MD$Block {
   /// Creates a new instance of [MD$Quote].
   /// {@macro markdown_block}
-  const MD$Quote({
-    required this.indent,
-    required this.text,
-    required this.spans,
-  });
+  const MD$Quote({required this.indent, required this.text, required this.spans});
 
   @override
   String get type => 'quote';
@@ -316,8 +297,7 @@ final class MD$Quote extends MD$Block {
     required T Function(MD$Divider d) divider,
     required T Function(MD$Table t) table,
     required T Function(MD$Spacer s) spacer,
-  }) =>
-      quote(this);
+  }) => quote(this);
 }
 
 /// A block representing a code block in Markdown.
@@ -327,10 +307,7 @@ final class MD$Quote extends MD$Block {
 final class MD$Code extends MD$Block {
   /// Creates a new instance of [MD$Code].
   /// {@macro markdown_block}
-  const MD$Code({
-    required this.language,
-    required this.text,
-  });
+  const MD$Code({required this.language, required this.text});
 
   @override
   String get type => 'code';
@@ -351,8 +328,7 @@ final class MD$Code extends MD$Block {
     required T Function(MD$Divider d) divider,
     required T Function(MD$Table t) table,
     required T Function(MD$Spacer s) spacer,
-  }) =>
-      code(this);
+  }) => code(this);
 }
 
 /// {@template list_item}
@@ -397,14 +373,13 @@ final class MD$ListItem {
     List<MD$Span>? spans,
     int? indent,
     List<MD$ListItem>? children,
-  }) =>
-      MD$ListItem(
-        marker: marker ?? this.marker,
-        text: text ?? this.text,
-        spans: spans ?? this.spans,
-        indent: indent ?? this.indent,
-        children: children ?? this.children,
-      );
+  }) => MD$ListItem(
+    marker: marker ?? this.marker,
+    text: text ?? this.text,
+    spans: spans ?? this.spans,
+    indent: indent ?? this.indent,
+    children: children ?? this.children,
+  );
 
   @override
   String toString() {
@@ -433,10 +408,7 @@ final class MD$ListItem {
 final class MD$List extends MD$Block {
   /// Creates a new instance of [MD$List].
   /// {@macro markdown_block}
-  const MD$List({
-    required this.text,
-    required this.items,
-  });
+  const MD$List({required this.text, required this.items});
 
   @override
   String get type => 'list';
@@ -457,8 +429,7 @@ final class MD$List extends MD$Block {
     required T Function(MD$Divider d) divider,
     required T Function(MD$Table t) table,
     required T Function(MD$Spacer s) spacer,
-  }) =>
-      list(this);
+  }) => list(this);
 }
 
 /// A block representing a horizontal rule in Markdown.
@@ -487,8 +458,7 @@ final class MD$Divider extends MD$Block {
     required T Function(MD$Divider d) divider,
     required T Function(MD$Table t) table,
     required T Function(MD$Spacer s) spacer,
-  }) =>
-      divider(this);
+  }) => divider(this);
 }
 
 /// {@template table_row}
@@ -501,10 +471,7 @@ final class MD$TableRow {
   /// The [text] is the content of the row,
   /// and [cells] are the inline text spans within the row.
   /// {@macro table_row}
-  const MD$TableRow({
-    required this.text,
-    required this.cells,
-  });
+  const MD$TableRow({required this.text, required this.cells});
 
   /// The text content of the row.
   final String text;
@@ -524,11 +491,7 @@ final class MD$TableRow {
 final class MD$Table extends MD$Block {
   /// Creates a new instance of [MD$Table].
   /// {@macro markdown_block}
-  const MD$Table({
-    required this.text,
-    required this.header,
-    required this.rows,
-  });
+  const MD$Table({required this.text, required this.header, required this.rows});
 
   @override
   String get type => 'table';
@@ -552,8 +515,7 @@ final class MD$Table extends MD$Block {
     required T Function(MD$Divider d) divider,
     required T Function(MD$Table t) table,
     required T Function(MD$Spacer s) spacer,
-  }) =>
-      table(this);
+  }) => table(this);
 }
 
 /* /// A block representing an image in Markdown.
@@ -607,9 +569,7 @@ final class MD$Image extends MD$Block {
 class MD$Spacer extends MD$Block {
   /// Creates a new instance of [MD$Spacer].
   /// {@macro markdown_block}
-  const MD$Spacer({
-    this.count = 1,
-  }) : text = '\n' * count;
+  const MD$Spacer({this.count = 1}) : text = '\n' * count;
 
   @override
   String get type => 'spacer';
@@ -631,6 +591,5 @@ class MD$Spacer extends MD$Block {
     required T Function(MD$Divider d) divider,
     required T Function(MD$Table t) table,
     required T Function(MD$Spacer s) spacer,
-  }) =>
-      spacer(this);
+  }) => spacer(this);
 }
