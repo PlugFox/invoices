@@ -13,7 +13,13 @@ class Organization {
   /// Requires [name], [address], [tax], and [description] to be provided.
   /// [address], [tax], and [description] can be null.
   /// {@macro organization}
-  const Organization({required this.name, required this.address, required this.tax, required this.description});
+  const Organization({
+    required this.name,
+    required this.address,
+    required this.tax,
+    required this.description,
+    this.extra = const {},
+  });
 
   /// Factory constructor to create an [Organization] from a map.
   factory Organization.fromMap(Map<String, Object?> map) => Organization(
@@ -34,6 +40,7 @@ class Organization {
       String text => text,
       _ => null,
     },
+    extra: map,
   );
 
   /// Name of the organization.
@@ -47,6 +54,9 @@ class Organization {
 
   /// Description of the organization.
   final String? description;
+
+  /// Extra information
+  final Map<String, Object?> extra;
 
   @override
   int get hashCode => name.hashCode;
@@ -74,7 +84,7 @@ class ProvidedService implements Comparable<ProvidedService> {
   /// Requires [name] and [amount] to be provided.
   /// [amount] can be a decimal number.
   /// {@macro provided_service}
-  const ProvidedService({required this.name, required this.amount});
+  const ProvidedService({required this.name, required this.amount, this.extra = const {}});
 
   /// Factory constructor to create a [ProvidedService] from a map.
   /// It tries to extract the service name and amount from the map.
@@ -90,6 +100,7 @@ class ProvidedService implements Comparable<ProvidedService> {
       String text => num.tryParse(text) ?? 0,
       _ => 0,
     },
+    extra: map,
   );
 
   /// Name of the service.
@@ -99,6 +110,9 @@ class ProvidedService implements Comparable<ProvidedService> {
   /// Amount charged for the service.
   /// This can be a decimal number representing the cost of the service.
   final num amount;
+
+  /// Extra information
+  final Map<String, Object?> extra;
 
   @override
   int compareTo(covariant ProvidedService other) => name.compareTo(other.name);
@@ -134,6 +148,7 @@ class Invoice implements Comparable<Invoice> {
     required this.counterparty,
     required this.services,
     required this.description,
+    this.extra = const {},
   });
 
   static const String _numberDictionary = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -237,6 +252,7 @@ class Invoice implements Comparable<Invoice> {
         String text => text,
         _ => null,
       },
+      extra: map,
     );
   }
 
@@ -260,6 +276,10 @@ class Invoice implements Comparable<Invoice> {
 
   /// Description
   final String? description;
+
+  /// Extra information
+  /// This can include additional metadata or custom fields related to the invoice.
+  final Map<String, Object?> extra;
 
   /// Total amount of the invoice, calculated as the sum of all service amounts.
   double get total {
