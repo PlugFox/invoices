@@ -201,7 +201,9 @@ class Invoice implements Comparable<Invoice> {
         } ??
         DateTime.now();
     return Invoice(
-      number: switch (map['number']) {
+      number: switch (map['number'] ?? map['invoiceNumber'] ?? map['invoice_number'] ?? map['id']) {
+        String text => text,
+        int number => number.toString(),
         _ => Invoice.generateNumber(issuedAt),
       },
       issuedAt: issuedAt,
