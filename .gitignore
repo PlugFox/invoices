@@ -16,3 +16,7 @@ doc/api/
 *.info.json
 
 credentials.json
+
+*.pdf
+test/*.json
+config/*

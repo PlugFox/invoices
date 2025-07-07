@@ -14,6 +14,8 @@ homepage: https://github.com/plugfox/invoices
 repository: https://github.com/plugfox/invoices
 issue_tracker: https://github.com/plugfox/invoices/issues
 
+publish_to: "none" # Do not publish to pub.dev
+
 topics:
   - invoices
   - generation
@@ -47,6 +49,11 @@ dependencies:
   path: ^1.9.1
   args: ^2.7.0
   pdf: ^3.11.3
+  meta: ^1.17.0
+  collection: ^1.19.1
+  yaml: ^3.1.3
+  intl: ^0.20.2
 
 dev_dependencies:
   lints: ">=5.0.0 <7.0.0"
+  test: ^1.26.2

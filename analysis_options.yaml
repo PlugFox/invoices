@@ -67,8 +67,7 @@ linter:
     lines_longer_than_80_chars: false
 
     # Enabling rules
-    prefer_relative_imports: true
-    avoid_relative_lib_imports: true
+    always_use_package_imports: true
     use_named_constants: true
     prefer_const_constructors: true
     prefer_const_literals_to_create_immutables: true
@@ -76,8 +75,9 @@ linter:
     prefer_const_constructors_in_immutables: true
 
     # Disable rules
+    prefer_relative_imports: false
+    avoid_relative_lib_imports: false
     sort_pub_dependencies: false
-    always_use_package_imports: false
     prefer_final_locals: false
     avoid_escaping_inner_quotes: false
     curly_braces_in_flow_control_structures: false
