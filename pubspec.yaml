@@ -8,7 +8,7 @@ description: >
   A package and tool to generate invoices in PDF format from YAML files.
   You can use it to create invoices for your customers, clients, or any other purpose.
 
-version: 0.0.1
+version: 0.0.2
 
 homepage: https://github.com/plugfox/invoices
 repository: https://github.com/plugfox/invoices

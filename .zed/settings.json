@@ -1,0 +1,105 @@
+// Project settings for Zed (https://zed.dev).
+//
+// Requires the Dart extension: open the command palette and run
+// `zed: extensions`, then install "Dart". It provides the `dart` language
+// server, which Zed starts automatically for this project.
+{
+  "languages": {
+    "Dart": {
+      // Keep in sync with `formatter.page_width` in analysis_options.yaml
+      // and with `dart.lineLength` in .vscode/settings.json.
+      "preferred_line_length": 120,
+      "soft_wrap": "preferred_line_length",
+      "tab_size": 2,
+      "hard_tabs": false,
+      "format_on_save": "on",
+      "formatter": "language_server",
+      "code_actions_on_format": {
+        "source.fixAll": true,
+        "source.organizeImports": true
+      },
+      "show_edit_predictions": true,
+      "show_whitespaces": "selection"
+    },
+    "YAML": {
+      "tab_size": 2,
+      "hard_tabs": false,
+      "preferred_line_length": 120,
+      "format_on_save": "on",
+      "soft_wrap": "editor_width"
+    },
+    "Markdown": {
+      "soft_wrap": "editor_width",
+      "format_on_save": "off",
+      "remove_trailing_whitespace_on_save": false
+    },
+    "JSONC": {
+      "tab_size": 2
+    }
+  },
+
+  "lsp": {
+    "dart": {
+      "initialization_options": {
+        // Surface analyzer diagnostics as you type, matching `dart analyze`.
+        "onlyAnalyzeProjectsWithOpenFiles": false,
+        "suggestFromUnimportedLibraries": true,
+        "closingLabels": true,
+        "outline": true,
+        "flutterOutline": false,
+        "completeFunctionCalls": true,
+        "showTodos": false,
+        "lineLength": 120,
+        "renameFilesWithClasses": "prompt",
+        "enableSnippets": true,
+        "updateImportsOnRename": true
+      }
+    }
+  },
+
+  // The analysis server already reports diagnostics; no inline runner needed.
+  "format_on_save": "on",
+  "ensure_final_newline_on_save": true,
+  "remove_trailing_whitespace_on_save": true,
+  "soft_wrap": "none",
+  "tab_size": 2,
+  "hard_tabs": false,
+  "wrap_guides": [120],
+  "show_wrap_guides": true,
+
+  "file_types": {
+    "YAML": ["pubspec.lock", "*.yaml", "*.yml"],
+    "Git Ignore": [".pubignore"],
+    "JSONC": [".vscode/*.json", ".zed/*.json"]
+  },
+
+  // Generated output, dependency caches and rendered invoices are noise.
+  "file_scan_exclusions": [
+    "**/.git",
+    "**/.dart_tool",
+    "**/.coverage",
+    "**/build",
+    "**/coverage",
+    "**/doc/api",
+    "**/.DS_Store"
+  ],
+
+  // Keep real invoice configs and rendered PDFs out of project-wide search.
+  "search": {
+    "include_ignored": false
+  },
+
+  "git": {
+    "inline_blame": {
+      "enabled": true,
+      "delay_ms": 600
+    }
+  },
+
+  "terminal": {
+    "working_directory": "current_project_directory",
+    "env": {
+      "ENVIRONMENT": "local"
+    }
+  }
+}

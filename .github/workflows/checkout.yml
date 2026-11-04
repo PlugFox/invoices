@@ -19,12 +19,16 @@ on:
     paths:
       - "pubspec.yaml"
       - "pubspec.lock"
+      - "analysis_options.yaml"
       - ".github/**.yaml"
       - ".github/**.yml"
       - "bin/**.dart"
       - "lib/**.dart"
       - "test/**.dart"
       - "example/**.dart"
+      # The smoke test renders config.yaml with the bundled fonts.
+      - "config.yaml"
+      - "fonts/**"
 
 permissions:
   contents: read
@@ -62,8 +66,7 @@ jobs:
       - name: 🚦 Check code format
         id: check-format
         timeout-minutes: 1
-        run: |
-          find lib test -name "*.dart" ! -name "*.*.dart" -print0 | xargs -0 dart format --set-exit-if-changed --line-length 120 -o none bin/ lib/ test/
+        run: dart format --set-exit-if-changed --line-length 120 --output none bin lib test
 
       - name: 📈 Check analyzer
         id: check-analyzer
@@ -81,13 +84,36 @@ jobs:
           echo "$version_pubspec" > /tmp/version_pubspec
           grep -q "# $version_pubspec" CHANGELOG.md || (echo "Version not found in CHANGELOG.md" >&2; exit 1)
 
+      - name: 🧪 Run tests
+        id: run-tests
+        timeout-minutes: 5
+        run: |
+          mkdir -p reports
+          dart test --platform=vm --reporter=github \
+            --file-reporter=json:reports/tests.json \
+            --timeout=5m --concurrency=12 --color
+
+      - name: 🖨️ Verify the CLI renders the sample invoice
+        id: smoke-test
+        timeout-minutes: 2
+        run: |
+          dart run bin/main.dart --input=config.yaml --output=/tmp/invoice.pdf --locale=en_US
+          test -s /tmp/invoice.pdf
+          head -c 5 /tmp/invoice.pdf | grep -q '%PDF-'
+          echo "Rendered $(stat -c%s /tmp/invoice.pdf) bytes"
+
+      - name: 📥 Upload test report
+        if: (success() || failure()) && github.actor != 'dependabot[bot]'
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: reports/tests.json
+          if-no-files-found: ignore
+
       #- name: Check with pana
       #  run: dart pub global activate pana && pana --json --no-warning --line-length 120
 
-      #- name: 🌐 Setup chrome
-      #  uses: browser-actions/setup-chrome@v1
-
-      #- name: 🧪 Run tests
+      #- name: 🧪 Run tests with coverage
       #  timeout-minutes: 5
       #  run: |
       #    dart pub global activate coverage
@@ -128,10 +154,3 @@ jobs:
       #  with:
       #    token: ${{ secrets.CODECOV_TOKEN }}
       #    files: ./coverage/lcov.info
-
-      #- name: 📥 Upload test report
-      #  uses: actions/upload-artifact@v4
-      #  if: (success() || failure()) && ${{ github.actor != 'dependabot[bot]' }}
-      #  with:
-      #    name: test-results
-      #    path: reports/tests.json

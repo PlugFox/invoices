@@ -153,6 +153,9 @@ class Invoice implements Comparable<Invoice> {
 
   static const String _numberDictionary = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
+  /// Code unit of `'0'`, the only dictionary character that maps to index 0.
+  static const int _zeroCodeUnit = 0x30;
+
   /// Generate invoice number based on the issued date.
   /// The format is 'INV-DATE-TIME', where DATE is encoded from the year, month, and day,
   /// and TIME is encoded from the hour and minute.
@@ -182,17 +185,28 @@ class Invoice implements Comparable<Invoice> {
     final parts = number.split('-');
     if (parts.length != 3) return null;
     final [_, $date, $time] = parts;
-    final dic = Uint8List(255);
+    // 256 entries so every possible code unit index below is in range.
+    final dic = Uint8List(256);
     const length = _numberDictionary.length;
     for (final (i, c) in _numberDictionary.codeUnits.indexed) dic[c] = i;
-    int string2num(String str) {
-      int num = 0;
-      for (var i = 0; i < str.length; i++) num = num * length + dic[str.codeUnitAt(i)];
+    // Returns null for any character outside the dictionary, so an arbitrary
+    // user-supplied invoice number cannot blow up with a RangeError.
+    int? string2num(String str) {
+      if (str.isEmpty) return null;
+      var num = 0;
+      for (var i = 0; i < str.length; i++) {
+        final unit = str.codeUnitAt(i);
+        if (unit >= dic.length) return null;
+        final index = dic[unit];
+        if (index == 0 && unit != _zeroCodeUnit) return null;
+        num = num * length + index;
+      }
       return num;
     }
 
     final date = string2num($date);
     final time = string2num($time);
+    if (date == null || time == null) return null;
     return DateTime.utc(
       (date >> 9) & 0x1FFF, // Year
       (date >> 5) & 0xF, // Month

@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:io' as io;
+import 'dart:typed_data';
 
 import 'package:args/args.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:invoices/invoices.dart';
+import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart' as yaml;
 
 final $log = io.stdout.writeln; // Log to stdout
@@ -28,9 +30,19 @@ void main([List<String>? $arguments]) => runZonedGuarded<void>(
     // Validate input and output file paths from command line arguments
     final String input, output;
     {
-      final pathRegExp = RegExp('^["\']?(?<path>[^"]+)["\']?\$');
-      input = pathRegExp.firstMatch(args.option('input') ?? '')?.namedGroup('path') ?? 'config.yaml';
-      output = pathRegExp.firstMatch(args.option('output') ?? '')?.namedGroup('path') ?? 'output.pdf';
+      // Strip a matching pair of surrounding quotes, as shells on Windows
+      // routinely pass them through.
+      String unquote(String? value, String fallback) {
+        var path = value?.trim() ?? '';
+        while (path.length > 1 &&
+            ((path.startsWith('"') && path.endsWith('"')) || (path.startsWith("'") && path.endsWith("'")))) {
+          path = path.substring(1, path.length - 1).trim();
+        }
+        return path.isEmpty ? fallback : path;
+      }
+
+      input = unquote(args.option('input'), 'config.yaml');
+      output = unquote(args.option('output'), 'output.pdf');
 
       if (input.isEmpty || output.isEmpty) {
         $err('Input and output paths cannot be empty.');
@@ -98,26 +110,39 @@ void main([List<String>? $arguments]) => runZonedGuarded<void>(
       }
     }
 
+    // Resolution order for options that exist both as a flag and as a YAML key:
+    // an explicitly passed flag wins, then the YAML file, then the flag default.
+    // Comparing against the flag default is not enough, since the user may pass
+    // that same value deliberately.
+    String? selected(String option) {
+      if (args.wasParsed(option)) return args.option(option);
+      if (invoice.extra[option] case String value when value.trim().isNotEmpty) return value.trim();
+      return args.option(option);
+    }
+
     // Initialize locale and date formatting
     String locale;
     {
-      locale = switch (args.option('locale') ?? io.Platform.localeName) {
+      locale = switch (selected('locale')) {
         String locale when locale.isNotEmpty => locale,
         _ => io.Platform.localeName,
       }.replaceAll('-', '_');
       await initializeDateFormatting(locale);
     }
 
-    Fonts font;
-    {
-      font = switch (args.option('template')) {
-        String template when template.isNotEmpty => Fonts.fromName(template),
-        _ => Fonts.openSans,
-      };
-    }
+    final font = Fonts.fromName(selected('font'));
 
-    final template = Templates.fromName(args.option('template'));
-    final bytes = await template.build(invoice, <String, Object?>{'locale': locale, 'font': font});
+    // Document level options (title, subject, author, keywords, color, format,
+    // logo, ...) are read from the top level of the YAML file.
+    final context = <String, Object?>{
+      ...invoice.extra,
+      'locale': locale,
+      'font': font,
+      if (_resolveLogo(invoice.extra['logo'], input) case Uint8List bytes) 'logo': bytes,
+    };
+
+    final template = Templates.fromName(selected('template'));
+    final bytes = await template.build(invoice, context);
     io.File(output).writeAsBytesSync(bytes);
     $log('Invoice generated successfully: $output');
 
@@ -128,7 +153,11 @@ void main([List<String>? $arguments]) => runZonedGuarded<void>(
       String() => error,
       ArgumentError() => 'Invalid argument: ${error.message}',
       FormatException() => 'Format error: ${error.message}',
-      io.FileSystemException() => 'File system error: ${error.message}',
+      io.FileSystemException() => <String>[
+        'File system error: ${error.message}',
+        if (error.path case String path when path.isNotEmpty) 'path: $path',
+        if (error.osError case io.OSError osError) 'cause: ${osError.message}',
+      ].join(' '),
       Exception() => 'An error occurred: ${error.toString()}',
       _ => 'Unexpected error: ${error.toString()}',
     });
@@ -144,6 +173,28 @@ void main([List<String>? $arguments]) => runZonedGuarded<void>(
     },
   ),
 );
+
+/// Read the optional `logo:` image referenced by the invoice file.
+///
+/// The path is resolved relative to the invoice file itself, so a config can be
+/// generated from any working directory. Returns `null` when no usable image is
+/// configured; a broken path is reported but does not abort the generation.
+Uint8List? _resolveLogo(Object? value, String invoicePath) {
+  if (value is! String || value.trim().isEmpty) return null;
+  final raw = value.trim();
+  final candidate = p.isAbsolute(raw) ? raw : p.join(p.dirname(p.absolute(invoicePath)), raw);
+  final file = io.File(candidate);
+  if (!file.existsSync()) {
+    $err('Warning: logo file not found, continuing without it: $candidate');
+    return null;
+  }
+  try {
+    return file.readAsBytesSync();
+  } on Object catch (error) {
+    $err('Warning: could not read the logo file, continuing without it: $error');
+    return null;
+  }
+}
 
 /// Parse arguments
 ArgParser buildArgumentsParser() =>

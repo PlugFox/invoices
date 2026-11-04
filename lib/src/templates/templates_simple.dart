@@ -15,9 +15,12 @@ import 'package:pdf/widgets.dart' as pw;
 /// Returns a [Uint8List] containing the PDF data.
 @internal
 Future<Uint8List> pdfBuilderSimple(Invoice invoice, Map<String, Object?> context) async {
-  T extract<T>(String key, T Function() fallback) {
+  // `T extends Object` matters: the `pw.Document` parameters this feeds are all
+  // nullable, so a bare `T` was inferred as `String?`. A missing key then
+  // matched the `final T value` pattern as `null` and every fallback below was
+  // silently dead, leaving the document with no metadata at all.
+  T extract<T extends Object>(String key, T Function() fallback) {
     final path = key.split('.');
-    if (path.isEmpty) return fallback();
     Object? obj = context;
     for (final part in path) {
       if (obj is Map) {
@@ -32,8 +35,9 @@ Future<Uint8List> pdfBuilderSimple(Invoice invoice, Map<String, Object?> context
     };
   }
 
-  // Get the color from the context
-  final color = Helpers.decodeColor(context['color']);
+  // Accent color used for the header banner and the total badge.
+  // Falls back to the template default when absent or unrecognized.
+  final color = Helpers.decodeColor(context['color']) ?? PdfColors.blueGrey800;
 
   // Locale for formatting
   final locale = switch (context['locale'] ?? context['language'] ?? context['lang']) {
@@ -47,6 +51,9 @@ Future<Uint8List> pdfBuilderSimple(Invoice invoice, Map<String, Object?> context
 
   // Get default text style
   final defaultStyle = await Helpers.getTextStyle(context['font'] ?? context['fonts'] ?? context['style']);
+
+  // Emoji fallback font, loaded from the package assets.
+  final iconsFont = await Helpers.loadIconsFont();
 
   // Fonts sizes:
   const h0 = 22.0, h1 = 20.0, h2 = 18.0, h3 = 16.0, h4 = 14.0, h5 = 12.0, body = 12.0;
@@ -64,7 +71,7 @@ Future<Uint8List> pdfBuilderSimple(Invoice invoice, Map<String, Object?> context
     header5: defaultStyle.copyWith(fontSize: h5, fontWeight: pw.FontWeight.bold),
     tableHeader: defaultStyle.copyWith(fontSize: body, fontWeight: pw.FontWeight.normal),
     tableCell: defaultStyle.copyWith(fontSize: body),
-    iconTheme: pw.IconThemeData.fallback(Helpers.iconsFont),
+    iconTheme: pw.IconThemeData.fallback(iconsFont),
   );
 
   // Create the PDF document
@@ -76,7 +83,7 @@ Future<Uint8List> pdfBuilderSimple(Invoice invoice, Map<String, Object?> context
     ),
     producer: extract('producer', () => invoice.organization.name),
     author: extract('author', () => invoice.organization.name),
-    creator: extract('author', () => invoice.organization.name),
+    creator: extract('creator', () => invoice.organization.name),
     keywords: extract('keywords', () => 'invoice, ${invoice.organization.name}, ${invoice.number}'),
     theme: theme,
     version: PdfVersion.pdf_1_5,
@@ -96,16 +103,11 @@ Future<Uint8List> pdfBuilderSimple(Invoice invoice, Map<String, Object?> context
   // Load the logo
   pw.ImageProvider? logo;
   try {
-    switch (context['logo']) {
-      case final Uint8List value:
-        logo = pw.MemoryImage(value);
-      case final pw.MemoryImage value:
-        logo = value;
-      case final pw.ImageProvider value:
-        logo = value;
-      default:
-        context['logo'] = logo;
-    }
+    logo = switch (context['logo']) {
+      final Uint8List value => pw.MemoryImage(value),
+      final pw.ImageProvider value => value,
+      _ => null,
+    };
   } on Object catch (_, _) {
     logo = null;
   }
@@ -180,7 +182,7 @@ Future<Uint8List> pdfBuilderSimple(Invoice invoice, Map<String, Object?> context
                 child: _InvoiceTemplate$Simple$InvoicesTable(invoice: invoice),
               ),
               pw.SizedBox(height: PdfPageFormat.inch * 0.25),
-              _InvoiceTemplate$Simple$InvoicesTotal(invoice: invoice),
+              _InvoiceTemplate$Simple$InvoicesTotal(invoice: invoice, color: color),
             ],
 
             // --- Terms and conditions --- //
@@ -218,7 +220,7 @@ class _InvoiceTemplate$Simple$PageHeader extends pw.StatelessWidget {
 
   @override
   pw.Widget build(pw.Context context) => pw.DecoratedBox(
-    decoration: const pw.BoxDecoration(color: PdfColors.blueGrey800),
+    decoration: pw.BoxDecoration(color: color ?? PdfColors.blueGrey800),
     child: pw.SizedBox(
       width: double.infinity,
       height: 124,
@@ -423,19 +425,20 @@ class _InvoiceTemplate$Simple$InvoicesTable extends pw.StatelessWidget {
 }
 
 class _InvoiceTemplate$Simple$InvoicesTotal extends pw.StatelessWidget {
-  _InvoiceTemplate$Simple$InvoicesTotal({required this.invoice});
+  _InvoiceTemplate$Simple$InvoicesTotal({required this.invoice, this.color});
 
   final Invoice invoice;
+  final PdfColor? color;
 
   @override
   pw.Widget build(pw.Context context) => pw.Align(
     alignment: pw.Alignment.centerRight,
     child: pw.DecoratedBox(
       position: pw.DecorationPosition.background,
-      decoration: const pw.BoxDecoration(
-        color: PdfColors.blueGrey800,
+      decoration: pw.BoxDecoration(
+        color: color ?? PdfColors.blueGrey800,
         shape: pw.BoxShape.rectangle,
-        borderRadius: pw.BorderRadius.horizontal(left: pw.Radius.circular(16)),
+        borderRadius: const pw.BorderRadius.horizontal(left: pw.Radius.circular(16)),
       ),
       child: pw.SizedBox(
         height: 40,

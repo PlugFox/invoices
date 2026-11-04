@@ -1,65 +1,175 @@
 {
   "version": "2.0.0",
+  "options": {
+    "cwd": "${workspaceFolder}"
+  },
+  "presentation": {
+    "reveal": "always",
+    "focus": false,
+    "panel": "shared",
+    "showReuseMessage": false,
+    "clear": true,
+    "group": "dart"
+  },
   "tasks": [
     {
       "label": "dart:pub:get",
       "detail": "Get dependencies for the project",
-      "icon": {
-        "color": "terminal.ansiGreen",
-        "id": "cloud-download"
-      },
-      "dependsOn": [],
+      "icon": { "color": "terminal.ansiGreen", "id": "cloud-download" },
       "type": "shell",
       "command": "dart pub get",
-      "args": [],
-      "group": {
-        "kind": "none",
-        "isDefault": true
-      },
       "problemMatcher": [],
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "isBackground": false,
-      "presentation": {
-        "reveal": "silent",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": false,
-        "clear": false,
-        "group": "dart"
-      }
+      "group": "none"
+    },
+    {
+      "label": "dart:pub:upgrade",
+      "detail": "Upgrade dependencies to the latest allowed versions",
+      "icon": { "color": "terminal.ansiGreen", "id": "arrow-up" },
+      "type": "shell",
+      "command": "dart pub upgrade",
+      "problemMatcher": [],
+      "group": "none"
+    },
+    {
+      "label": "dart:pub:outdated",
+      "detail": "Show dependencies that have newer versions available",
+      "icon": { "color": "terminal.ansiYellow", "id": "versions" },
+      "type": "shell",
+      "command": "dart pub outdated",
+      "problemMatcher": [],
+      "group": "none"
     },
     {
       "label": "dart:format",
-      "detail": "Format all files in the project",
-      "icon": {
-        "color": "terminal.ansiGreen",
-        "id": "lightbulb-autofix"
-      },
+      "detail": "Format all Dart files in the project",
+      "icon": { "color": "terminal.ansiGreen", "id": "lightbulb-autofix" },
       "type": "shell",
-      "command": [
-        "dart format --fix -l 120 lib test"
-      ],
-      "dependsOn": [],
-      "args": [],
-      "group": {
-        "kind": "none",
-        "isDefault": true
-      },
+      "command": "dart format bin lib test",
       "problemMatcher": [],
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "isBackground": false,
-      "presentation": {
-        "reveal": "silent",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": false,
-        "clear": false,
-        "group": "dart"
+      "group": "none"
+    },
+    {
+      "label": "dart:format:check",
+      "detail": "Fail if any Dart file is not formatted",
+      "icon": { "color": "terminal.ansiYellow", "id": "check" },
+      "type": "shell",
+      "command": "dart format --set-exit-if-changed --output none bin lib test",
+      "problemMatcher": [],
+      "group": "none"
+    },
+    {
+      "label": "dart:analyze",
+      "detail": "Analyze the project, treating infos and warnings as failures",
+      "icon": { "color": "terminal.ansiBlue", "id": "search-fuzzy" },
+      "type": "shell",
+      "command": "dart analyze --fatal-infos --fatal-warnings bin lib test",
+      "problemMatcher": ["$dart-analyze"],
+      "group": "none"
+    },
+    {
+      "label": "dart:fix",
+      "detail": "Apply automated analyzer fixes in place",
+      "icon": { "color": "terminal.ansiGreen", "id": "wand" },
+      "type": "shell",
+      "command": "dart fix --apply",
+      "problemMatcher": [],
+      "group": "none"
+    },
+    {
+      "label": "dart:test",
+      "detail": "Run the unit tests",
+      "icon": { "color": "terminal.ansiMagenta", "id": "beaker" },
+      "type": "shell",
+      "command": "dart test --reporter=expanded --timeout=30s --concurrency=12",
+      "problemMatcher": [],
+      "group": {
+        "kind": "test",
+        "isDefault": true
       }
+    },
+    {
+      "label": "dart:test:coverage",
+      "detail": "Run the unit tests and write a coverage report to .coverage",
+      "icon": { "color": "terminal.ansiMagenta", "id": "beaker" },
+      "type": "shell",
+      "command": "dart test --coverage=.coverage --reporter=expanded --file-reporter=json:.coverage/tests.json --timeout=30s --concurrency=12",
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "invoice:generate",
+      "detail": "Generate a PDF from config/config.yaml",
+      "icon": { "color": "terminal.ansiCyan", "id": "file-pdf" },
+      "type": "shell",
+      "command": "dart run bin/main.dart --input=config/config.yaml --output=invoice.pdf --locale=en_US",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "invoice:generate:prompt",
+      "detail": "Generate a PDF, prompting for the input and output paths",
+      "icon": { "color": "terminal.ansiCyan", "id": "file-pdf" },
+      "type": "shell",
+      "command": "dart run bin/main.dart --input='${input:inputYaml}' --output='${input:outputPdf}' --font=${input:font} --locale=${input:locale}",
+      "problemMatcher": [],
+      "group": "build"
+    },
+    {
+      "label": "invoice:help",
+      "detail": "Print the CLI usage information",
+      "icon": { "color": "terminal.ansiCyan", "id": "question" },
+      "type": "shell",
+      "command": "dart run bin/main.dart --help",
+      "problemMatcher": [],
+      "group": "none"
+    },
+    {
+      "label": "dart:activate:global",
+      "detail": "Install this tool globally from the current checkout",
+      "icon": { "color": "terminal.ansiGreen", "id": "desktop-download" },
+      "type": "shell",
+      "command": "dart pub global activate --source path .",
+      "problemMatcher": [],
+      "group": "none"
+    },
+    {
+      "label": "check:all",
+      "detail": "Format check, analyze and test — the same gates CI runs",
+      "icon": { "color": "terminal.ansiGreen", "id": "checklist" },
+      "dependsOrder": "sequence",
+      "dependsOn": ["dart:pub:get", "dart:format:check", "dart:analyze", "dart:test"],
+      "problemMatcher": [],
+      "group": "none"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "inputYaml",
+      "type": "promptString",
+      "description": "Path to the invoice YAML file",
+      "default": "config/config.yaml"
+    },
+    {
+      "id": "outputPdf",
+      "type": "promptString",
+      "description": "Path to the generated PDF file",
+      "default": "invoice.pdf"
+    },
+    {
+      "id": "font",
+      "type": "pickString",
+      "description": "Font to use",
+      "options": ["openSans", "times", "helvetica", "courier"],
+      "default": "openSans"
+    },
+    {
+      "id": "locale",
+      "type": "promptString",
+      "description": "Locale used for date formatting",
+      "default": "en_US"
     }
   ]
 }

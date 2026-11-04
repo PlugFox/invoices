@@ -1,7 +1,11 @@
 {
+  // ==========================================================================
+  // DART / FLUTTER
+  // ==========================================================================
   "[dart]": {
     "editor.insertSpaces": true,
     "editor.tabSize": 2,
+    "editor.detectIndentation": false,
     "editor.suggest.snippetsPreventQuickSuggestions": false,
     "editor.suggestSelection": "first",
     "editor.tabCompletion": "onlySnippets",
@@ -21,34 +25,82 @@
       "other": "on"
     },
     "editor.links": true,
-    "editor.rulers": [
-      120
-    ]
+    "editor.rulers": [120]
   },
+  // Keep in sync with `formatter.page_width` in analysis_options.yaml.
   "dart.lineLength": 120,
-  "dart.doNotFormat": [
-    "**.g.dart"
-  ],
+  "dart.doNotFormat": ["**/*.g.dart", "**/*.freezed.dart"],
+  "dart.previewFlutterUiGuides": true,
+  "dart.showTodos": false,
+  "dart.runPubGetOnPubspecChanges": "prompt",
+  "dart.analysisExcludedFolders": [".dart_tool", ".coverage", "build", "coverage"],
+  "dart.openDevTools": "never",
+  "dart.enableSdkFormatter": true,
+  "dart.warnWhenEditingFilesInPubCache": true,
+
+  // ==========================================================================
+  // EDITOR
+  // ==========================================================================
+  "editor.formatOnSave": true,
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "files.trimFinalNewlines": true,
+  "files.eol": "\n",
   "html.format.enable": false,
+
+  // ==========================================================================
+  // YAML — the invoice configs are the primary input format of this tool
+  // ==========================================================================
+  "[yaml]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.detectIndentation": false,
+    "editor.autoIndent": "keep",
+    "editor.quickSuggestions": {
+      "comments": "off",
+      "strings": "on",
+      "other": "on"
+    }
+  },
+  "yaml.format.singleQuote": false,
+  "yaml.schemas": {
+    "https://json.schemastore.org/dependabot-2.0.json": [".github/dependabot.yaml"],
+    "https://json.schemastore.org/github-workflow.json": [".github/workflows/*.yml"],
+    "https://json.schemastore.org/github-action.json": [".github/actions/**/action.yaml"]
+  },
+
+  // ==========================================================================
+  // SEARCH / WATCHER / EXPLORER
+  // ==========================================================================
   "search.exclude": {
-    ".dart_tool": true,
-    "coverage": true,
-    "build": true
+    "**/.dart_tool": true,
+    "**/.coverage": true,
+    "**/build": true,
+    "**/coverage": true,
+    "**/doc/api": true,
+    "**/pubspec.lock": true,
+    "**/*.pdf": true
   },
   "files.watcherExclude": {
-    ".dart_tool": true,
-    "coverage": true,
-    "build": true
+    "**/.dart_tool/**": true,
+    "**/.coverage/**": true,
+    "**/build/**": true,
+    "**/coverage/**": true
   },
+  "files.associations": {
+    "*.yaml": "yaml",
+    ".pubignore": "ignore"
+  },
+
   // Causes the debug view to automatically appear when a breakpoint is hit. This
   // setting is global and not configurable per-language.
   "debug.openDebug": "openOnDebugBreak",
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.expand": false,
   "explorer.fileNesting.patterns": {
-    "pubspec.yaml": ".flutter-plugins, .packages, .dart_tool, .flutter-plugins-dependencies, .metadata, .packages, pubspec.lock, build.yaml, analysis_options.yaml, all_lint_rules.yaml, dart*.yaml, flutter*.yaml, icons_launcher.yaml",
-    ".gitignore": ".gitattributes, .gitmodules, .gitmessage, .mailmap, .git-blame*",
+    "pubspec.yaml": ".flutter-plugins, .packages, .dart_tool, .flutter-plugins-dependencies, .metadata, pubspec.lock, pubspec_overrides.yaml, build.yaml, analysis_options.yaml, all_lint_rules.yaml, dart*.yaml, flutter*.yaml, icons_launcher.yaml",
+    ".gitignore": ".gitattributes, .gitmodules, .gitmessage, .mailmap, .git-blame*, .pubignore",
     "readme.*": "authors, backers.md, changelog*, citation*, code_of_conduct.md, codeowners, contributing.md, contributors, copying, credits, governance.md, history.md, license*, maintainers, readme*, security.md, sponsors.md",
-    "*.dart": "$(capture).g.dart, $(capture).config.dart"
+    "*.dart": "$(capture).g.dart, $(capture).freezed.dart, $(capture).config.dart"
   }
 }

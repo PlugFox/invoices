@@ -1,5 +1,20 @@
 {
-    "recommendations": [
-        "dart-code.dart-code"
-    ]
+  "recommendations": [
+    // Dart language support, debugging and the analysis server.
+    "dart-code.dart-code",
+    // YAML schema validation for the invoice configs and GitHub workflows.
+    "redhat.vscode-yaml",
+    // Preview generated invoices without leaving the editor.
+    "tomoki1207.pdf",
+    // Inline linting for the GitHub Actions workflows in .github/.
+    "github.vscode-github-actions",
+    // Spell checking for invoice descriptions and documentation.
+    "streetsidesoftware.code-spell-checker",
+    // Markdown linting for README.md and CHANGELOG.md.
+    "davidanson.vscode-markdownlint"
+  ],
+  "unwantedRecommendations": [
+    // Flutter tooling is unnecessary: this is a pure Dart CLI package.
+    "dart-code.flutter"
+  ]
 }

@@ -4,6 +4,7 @@
 .dart_tool/
 .packages
 build/
+pubspec_overrides.yaml
 
 # Directory created by dartdoc
 # If you don't generate documentation locally you can remove this line.
@@ -15,8 +16,25 @@ doc/api/
 # Produced by the --dump-info flag.
 *.info.json
 
-credentials.json
-
-*.pdf
+# Coverage and test artifacts
+.coverage/
+coverage/
 test/*.json
-config/*
+
+# Secrets
+credentials.json
+*.pem
+*.key
+
+# Generated invoices
+*.pdf
+
+# Real invoice configurations. `config/.keep` is tracked so the directory
+# exists; every actual config in it stays local.
+config/*.yaml
+config/*.yml
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini

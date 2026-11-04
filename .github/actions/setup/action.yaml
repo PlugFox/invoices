@@ -39,13 +39,13 @@ runs:
       uses: actions/cache/restore@v4
       with:
         path: |
-          /home/runner/.pub-cache
+          ~/.pub-cache
         key: ${{ runner.os }}-pub-${{ inputs.pub-cache }}-${{ hashFiles('pubspec.lock') }}
 
     - name: 👷 Install Dependencies
       shell: bash
       run: |
-        echo /home/runner/.pub-cache/bin >> $GITHUB_PATH
+        echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
         dart pub get
 
     #- name: ⏲️ Run build runner
@@ -59,5 +59,5 @@ runs:
       uses: actions/cache/save@v4
       with:
         path: |
-          /home/runner/.pub-cache
+          ~/.pub-cache
         key: ${{ steps.cache-pub-restore.outputs.cache-primary-key }}

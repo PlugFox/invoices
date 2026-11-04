@@ -56,7 +56,14 @@ dart run bin/main.dart [options]
 | `--output`   | `-o`  | Output PDF file where the generated invoice will be saved | `output.pdf`  |
 | `--template` | `-t`  | Template to use for generating the invoice                | `simple`      |
 | `--font`     | `-f`  | Font to use for the invoice text                          | `openSans`    |
-| `--locale`   | `-l`  | Locale to use for formatting the invoice                  | `ru-RU`       |
+| `--locale`   | `-l`  | Locale to use for formatting the invoice                  | system locale |
+
+Allowed `--template` values: `simple`.
+Allowed `--font` values: `openSans` (bundled TTF), `times`, `helvetica`, `courier` (built-in PDF fonts).
+
+> The bundled fonts in `fonts/` are resolved relative to the installed package,
+> so the tool works from any directory once it is activated globally. Set
+> `INVOICES_FONTS` to override the directory they are loaded from.
 
 ## YAML Configuration
 
@@ -121,6 +128,33 @@ All fields in the YAML configuration are optional.
   - **name** - Service or item name
   - **amount** - Service or item amount
 
+### Document options
+
+These optional top-level keys control the generated document itself:
+
+| Key        | Description                                                                 | Default                       |
+| ---------- | --------------------------------------------------------------------------- | ----------------------------- |
+| `color`    | Accent color of the header banner and total badge                           | `blueGrey800`                 |
+| `format`   | Page format: `a4`, `letter` or `legal`                                      | `a4`                          |
+| `logo`     | Path to a logo image, resolved relative to the YAML file                    | none                          |
+| `title`    | PDF document title                                                          | `<organization> - <date> invoice` |
+| `subject`  | PDF document subject                                                        | title plus the invoice number |
+| `author`   | PDF document author                                                         | organization name             |
+| `creator`  | PDF document creator                                                        | organization name             |
+| `producer` | PDF document producer                                                       | organization name             |
+| `keywords` | PDF document keywords                                                       | `invoice, <organization>, <number>` |
+
+`color` accepts a hex value (`"#B00020"`) or a named Material color
+(`red`, `blue`, `teal`, `blueGrey`, `deepOrangeAccent`, ...). An unrecognized
+value falls back to the template default rather than failing.
+
+```yaml
+color: "#B00020"
+format: letter
+logo: assets/logo.png
+title: "Invoice for October"
+```
+
 ## Examples
 
 ### Generate invoice with custom template and font
@@ -152,7 +186,13 @@ dart test
 ### Formatting code
 
 ```bash
-dart format --fix -l 120 bin lib test
+dart format bin lib test
+```
+
+### Analyzing code
+
+```bash
+dart analyze --fatal-infos --fatal-warnings bin lib test
 ```
 
 ### Getting dependencies

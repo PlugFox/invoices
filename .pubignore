@@ -1,5 +1,33 @@
+# Files excluded when publishing the package.
+# Note: the bundled `fonts/` directory must stay, the templates load it at runtime.
+
+# Files and directories created by pub
+.dart_tool/
+.packages
+build/
+
+# Directory created by dartdoc
+doc/api/
+
+# dotenv environment variables file
+.env*
+
+# Produced by the --dump-info flag.
+*.info.json
+
+# Editor configuration
 .vscode/
-credentials.json
-*.pdf
+.zed/
+.editorconfig
+
+# Coverage and test artifacts
+.coverage/
+coverage/
 test/*.json
-config/*
+
+# Local secrets and real invoice data
+credentials.json
+config/
+
+# Generated invoices
+*.pdf

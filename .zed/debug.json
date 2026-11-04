@@ -1,0 +1,49 @@
+// Debug configurations for Zed (https://zed.dev).
+// Start one with `debugger: start` from the command palette.
+// Requires the Dart extension, which supplies the Dart debug adapter.
+[
+  {
+    "label": "Generate Invoice (config/config.yaml)",
+    "adapter": "Dart",
+    "request": "launch",
+    "program": "bin/main.dart",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "args": ["--input=config/config.yaml", "--output=invoice.pdf", "--locale=en_US"],
+    "env": {
+      "ENVIRONMENT": "local"
+    }
+  },
+  {
+    "label": "Generate Invoice (sample config.yaml)",
+    "adapter": "Dart",
+    "request": "launch",
+    "program": "bin/main.dart",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "args": ["--input=config.yaml", "--output=invoice.pdf", "--locale=en_US"],
+    "env": {
+      "ENVIRONMENT": "local"
+    }
+  },
+  {
+    "label": "Print usage information",
+    "adapter": "Dart",
+    "request": "launch",
+    "program": "bin/main.dart",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "args": ["--help"],
+    "env": {
+      "ENVIRONMENT": "local"
+    }
+  },
+  {
+    "label": "Unit Test",
+    "adapter": "Dart",
+    "request": "launch",
+    "program": "test/unit_test.dart",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "args": [],
+    "env": {
+      "ENVIRONMENT": "test"
+    }
+  }
+]

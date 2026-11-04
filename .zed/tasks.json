@@ -1,0 +1,160 @@
+// Project tasks for Zed (https://zed.dev).
+// Run them with `task: spawn` from the command palette.
+[
+  {
+    "label": "dart: pub get",
+    "command": "dart",
+    "args": ["pub", "get"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "dart: pub upgrade",
+    "command": "dart",
+    "args": ["pub", "upgrade"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "dart: pub outdated",
+    "command": "dart",
+    "args": ["pub", "outdated"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "dart: format",
+    "command": "dart",
+    "args": ["format", "bin", "lib", "test"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "dart: format check",
+    "command": "dart",
+    "args": ["format", "--set-exit-if-changed", "--output", "none", "bin", "lib", "test"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "dart: analyze",
+    "command": "dart",
+    "args": ["analyze", "--fatal-infos", "--fatal-warnings", "bin", "lib", "test"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "dart: fix --apply",
+    "command": "dart",
+    "args": ["fix", "--apply"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "dart: test",
+    "command": "dart",
+    "args": ["test", "--reporter=expanded", "--timeout=30s", "--concurrency=12"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always",
+    "tags": ["dart-test"]
+  },
+  {
+    "label": "dart: test (coverage)",
+    "command": "dart",
+    "args": [
+      "test",
+      "--coverage=.coverage",
+      "--reporter=expanded",
+      "--file-reporter=json:.coverage/tests.json",
+      "--timeout=30s",
+      "--concurrency=12"
+    ],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "dart: test current file",
+    "command": "dart",
+    "args": ["test", "--reporter=expanded", "$ZED_RELATIVE_FILE"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "invoice: generate from config/config.yaml",
+    "command": "dart",
+    "args": [
+      "run",
+      "bin/main.dart",
+      "--input=config/config.yaml",
+      "--output=invoice.pdf",
+      "--locale=en_US"
+    ],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "invoice: generate from current file",
+    "command": "dart",
+    "args": [
+      "run",
+      "bin/main.dart",
+      "--input=$ZED_RELATIVE_FILE",
+      "--output=$ZED_STEM.pdf",
+      "--locale=en_US"
+    ],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "invoice: help",
+    "command": "dart",
+    "args": ["run", "bin/main.dart", "--help"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "dart: activate globally",
+    "command": "dart",
+    "args": ["pub", "global", "activate", "--source", "path", "."],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    // Runs the same gates as CI. Chained in the shell, since Zed tasks have no
+    // dependency graph of their own.
+    "label": "check: all (format, analyze, test)",
+    "command": "dart pub get && dart format --set-exit-if-changed --output none bin lib test && dart analyze --fatal-infos --fatal-warnings bin lib test && dart test --reporter=expanded --timeout=30s --concurrency=12",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  }
+]

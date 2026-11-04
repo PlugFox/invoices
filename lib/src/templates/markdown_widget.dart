@@ -163,6 +163,17 @@ List<pw.Widget> _markdown2pdf(Markdown markdown, pw.ThemeData theme, Locale loca
 /// Helper function to convert markdown spans to plain text
 String _spansToPlainText(List<MD$Span> spans) => spans.map((span) => span.text).join('');
 
+/// Schemes that are safe to emit as a clickable PDF annotation.
+/// Anything else (`javascript:`, `file:`, a bare relative path, ...) is rendered
+/// as plain text instead.
+const Set<String> _linkSchemes = <String>{'https', 'http', 'mailto', 'tel'};
+
+bool _isSupportedLink(String href) {
+  if (href.isEmpty) return false;
+  final uri = Uri.tryParse(href);
+  return uri != null && _linkSchemes.contains(uri.scheme.toLowerCase());
+}
+
 /// Converts a list of markdown spans to PDF inline spans with appropriate styles.
 List<pw.InlineSpan> _spans2pdf(List<MD$Span> spans, pw.TextStyle style, Locale locale) {
   final cache = HashMap<int, pw.TextStyle>()..[0] = style;
@@ -201,7 +212,7 @@ List<pw.InlineSpan> _spans2pdf(List<MD$Span> spans, pw.TextStyle style, Locale l
           ),
         );
         if (e.style.contains(MD$Style.link)) {
-          if (e.extra case <String, Object?>{'url': String href} when href.isNotEmpty && href.startsWith('https://')) {
+          if (e.extra case <String, Object?>{'url': String href} when _isSupportedLink(href)) {
             // Valid link, create a text span with a URL
             return pw.WidgetSpan(
               annotation: pw.AnnotationLink(href),

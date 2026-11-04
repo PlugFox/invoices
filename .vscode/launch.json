@@ -5,35 +5,66 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Generate Invoice",
+      "name": "Generate Invoice (config/config.yaml)",
       "request": "launch",
       "type": "dart",
       "program": "bin/main.dart",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "ENVIRONMENT": "local"
+      },
+      "args": ["--input=config/config.yaml", "--output=invoice.pdf", "--locale=en_US"],
+      "console": "debugConsole",
+      "runTestsOnDevice": false,
+      "toolArgs": []
+    },
+    {
+      "name": "Generate Invoice (sample config.yaml)",
+      "request": "launch",
+      "type": "dart",
+      "program": "bin/main.dart",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "ENVIRONMENT": "local"
+      },
+      "args": ["--input=config.yaml", "--output=invoice.pdf", "--locale=en_US"],
+      "console": "debugConsole",
+      "runTestsOnDevice": false,
+      "toolArgs": []
+    },
+    {
+      "name": "Generate Invoice (prompt for input)",
+      "request": "launch",
+      "type": "dart",
+      "program": "bin/main.dart",
+      "cwd": "${workspaceFolder}",
       "env": {
         "ENVIRONMENT": "local"
       },
       "args": [
-        "--input=config/config.yaml",
-        "--locale=en_US"
+        "--input=${input:inputYaml}",
+        "--output=${input:outputPdf}",
+        "--template=${input:template}",
+        "--font=${input:font}",
+        "--locale=${input:locale}"
       ],
       "console": "debugConsole",
       "runTestsOnDevice": false,
-      "toolArgs": [],
+      "toolArgs": []
     },
     {
       "name": "Print usage information",
       "request": "launch",
       "type": "dart",
       "program": "bin/main.dart",
+      "cwd": "${workspaceFolder}",
       "env": {
         "ENVIRONMENT": "local"
       },
-      "args": [
-        "--help"
-      ],
+      "args": ["--help"],
       "console": "debugConsole",
       "runTestsOnDevice": false,
-      "toolArgs": [],
+      "toolArgs": []
     },
     // https://pub.dev/packages/test
     {
@@ -41,6 +72,7 @@
       "request": "launch",
       "type": "dart",
       "program": "test/unit_test.dart",
+      "cwd": "${workspaceFolder}",
       "env": {
         "ENVIRONMENT": "test"
       },
@@ -52,12 +84,46 @@
         "--debug",
         "--coverage=.coverage",
         "--reporter=expanded",
-        "--platform=vm", // chrome
+        "--platform=vm",
         "--file-reporter=json:.coverage/tests.json",
         "--timeout=30s",
         "--concurrency=12"
       ],
       "args": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "inputYaml",
+      "type": "promptString",
+      "description": "Path to the invoice YAML file",
+      "default": "config/config.yaml"
+    },
+    {
+      "id": "outputPdf",
+      "type": "promptString",
+      "description": "Path to the generated PDF file",
+      "default": "invoice.pdf"
+    },
+    {
+      "id": "template",
+      "type": "pickString",
+      "description": "Template to use",
+      "options": ["simple"],
+      "default": "simple"
+    },
+    {
+      "id": "font",
+      "type": "pickString",
+      "description": "Font to use",
+      "options": ["openSans", "times", "helvetica", "courier"],
+      "default": "openSans"
+    },
+    {
+      "id": "locale",
+      "type": "promptString",
+      "description": "Locale used for date formatting",
+      "default": "en_US"
     }
   ]
 }
