@@ -15,10 +15,11 @@ doc/api/
 # Produced by the --dump-info flag.
 *.info.json
 
-# Editor configuration
+# Editor and toolchain configuration
 .vscode/
 .zed/
 .editorconfig
+mise.toml
 
 # Coverage and test artifacts
 .coverage/

@@ -108,7 +108,8 @@ Future<Uint8List> pdfBuilderSimple(Invoice invoice, Map<String, Object?> context
       final pw.ImageProvider value => value,
       _ => null,
     };
-  } on Object catch (_, _) {
+  } on Object catch (_) {
+    // A corrupt or unsupported image must not abort the whole invoice.
     logo = null;
   }
 

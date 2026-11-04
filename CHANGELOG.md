@@ -26,6 +26,10 @@
   format check no longer uses a malformed `find | xargs` invocation.
 - **CHANGED**: Editor configuration for VS Code reworked, and configuration for
   Zed and `.editorconfig` added.
+- **ADDED**: `mise.toml` pinning the Dart SDK and `actionlint`, with tasks
+  mirroring the editor task definitions (`mise run check` runs the CI gates).
+- **FIXED**: An unused catch stack trace that the current stable Dart SDK
+  reports as a warning, which would have failed `--fatal-warnings` in CI.
 
 ## 0.0.1
 

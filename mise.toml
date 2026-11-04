@@ -1,0 +1,85 @@
+# Tool versions for this project (https://mise.jdx.dev).
+#
+# First time in a fresh clone:
+#   mise trust && mise install
+# `mise trust` is required because this file defines env vars and tasks.
+#
+# Without a config that activates it, the `dart` shim fails with
+# "mise ERROR cannot find binary path" even when Flutter is installed, because
+# Flutter's bundled SDK is not registered as mise's `dart`.
+
+[tools]
+# Matches the `sdk: ">=3.7.0 <4.0.0"` constraint in pubspec.yaml. The major
+# version is pinned so mise never resolves to Dart 4, which would break it.
+# Use an exact version (e.g. "3.13.7") if you need a reproducible toolchain.
+dart = "3"
+
+# Linter for the GitHub Actions workflows under .github/.
+actionlint = "1.7"
+
+[env]
+# Mirrors the ENVIRONMENT set by the editor launch configurations.
+ENVIRONMENT = "local"
+
+# Tasks mirror .vscode/tasks.json and .zed/tasks.json so all three agree.
+# List them with `mise tasks`, run one with `mise run <name>`.
+
+[tasks.get]
+description = "Get dependencies"
+run = "dart pub get"
+
+[tasks.upgrade]
+description = "Upgrade dependencies to the latest allowed versions"
+run = "dart pub upgrade"
+
+[tasks.outdated]
+description = "Show dependencies with newer versions available"
+run = "dart pub outdated"
+
+[tasks.format]
+description = "Format all Dart sources"
+run = "dart format bin lib test"
+
+[tasks."format:check"]
+description = "Fail if any Dart source is not formatted"
+run = "dart format --set-exit-if-changed --output none bin lib test"
+
+[tasks.analyze]
+description = "Analyze, treating infos and warnings as failures"
+run = "dart analyze --fatal-infos --fatal-warnings bin lib test"
+
+[tasks.fix]
+description = "Apply automated analyzer fixes in place"
+run = "dart fix --apply"
+
+[tasks.test]
+description = "Run the unit tests"
+run = "dart test --reporter=expanded --timeout=30s --concurrency=12"
+
+[tasks."test:coverage"]
+description = "Run the unit tests with a coverage report in .coverage"
+run = """
+dart test --coverage=.coverage --reporter=expanded \
+  --file-reporter=json:.coverage/tests.json --timeout=30s --concurrency=12
+"""
+
+[tasks.lint-actions]
+description = "Lint the GitHub Actions workflows"
+run = "actionlint .github/workflows/checkout.yml"
+
+[tasks.invoice]
+description = "Generate a PDF from config/config.yaml"
+run = "dart run bin/main.dart --input=config/config.yaml --output=invoice.pdf --locale=en_US"
+
+[tasks.help]
+description = "Print the CLI usage information"
+run = "dart run bin/main.dart --help"
+
+[tasks.check]
+description = "Format check, analyze and test - the same gates CI runs"
+depends = ["get"]
+run = [
+  "dart format --set-exit-if-changed --output none bin lib test",
+  "dart analyze --fatal-infos --fatal-warnings bin lib test",
+  "dart test --reporter=expanded --timeout=30s --concurrency=12",
+]

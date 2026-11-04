@@ -19,6 +19,16 @@ It is designed to be used in a Dart environment and can be run from the command 
 
 - Dart SDK 3.7.0 or higher
 
+The repository pins its toolchain with [mise](https://mise.jdx.dev), so the SDK
+can be provisioned for you instead of installed by hand:
+
+```bash
+mise trust && mise install
+```
+
+`mise trust` is needed once per clone because `mise.toml` defines environment
+variables and tasks. Run `mise tasks` to see the available tasks.
+
 ### Install from source
 
 ```bash
@@ -199,6 +209,12 @@ dart analyze --fatal-infos --fatal-warnings bin lib test
 
 ```bash
 dart pub get
+```
+
+### Running every check CI runs
+
+```bash
+mise run check
 ```
 
 ## Contributing
